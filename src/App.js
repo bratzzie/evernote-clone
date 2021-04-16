@@ -1,25 +1,42 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import Sidebar from "./components/sidebar/Sidebar";
+import Editor from "./components/editor/Editor";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import "./App.css";
+import { db } from "./firebase";
+
+class App extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      selectedNoteIndex: null,
+      selectedNote: null,
+      notes: null,
+    };
+  }
+  componentDidMount = () => {
+    db.collection("notes").onSnapshot((serverUpdate) => {
+      const notes = serverUpdate.docs.map((_doc) => {
+        const data = _doc.data();
+        data["id"] = _doc.id;
+        return data;
+      });
+      console.log(notes);
+      this.setState({ notes });
+    }); // every update in collection arg function in onsnapshot will be called
+  };
+
+  render() {
+    return (
+      <>
+        <Sidebar
+          selectedNoteIndex={this.state.selectedNoteIndex}
+          notes={this.state.notes}
+        />
+        <Editor />
+      </>
+    );
+  }
 }
 
 export default App;
