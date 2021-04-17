@@ -4,6 +4,8 @@ import Editor from "./components/editor/Editor";
 
 import "./App.css";
 import { db } from "./firebase";
+import firebase from "firebase";
+import Navbar from "./components/navbar/Navbar";
 
 class App extends React.Component {
   constructor() {
@@ -30,7 +32,7 @@ class App extends React.Component {
     db.collection("notes").doc(id).update({
       title: noteObj.title,
       body: noteObj.body,
-      timestamp: db.FieldValue.serverTimestamp(),
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
     });
   };
 
@@ -47,7 +49,7 @@ class App extends React.Component {
     const newFromDB = await db.collection("notes").add({
       title: note.title,
       body: note.body,
-      timestamp: db.FieldValue.serverTimestamp(),
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
     });
 
     const newID = newFromDB.id;
@@ -88,7 +90,18 @@ class App extends React.Component {
 
   render() {
     return (
-      <>
+      <div
+        style={{
+          display: "flex",
+        }}
+      >
+        <Navbar
+          selectedNoteIndex={this.state.selectedNoteIndex}
+          notes={this.state.notes}
+          deleteNote={this.deleteNote}
+          selectNote={this.selectNote}
+          newNote={this.newNote}
+        />
         <Sidebar
           selectedNoteIndex={this.state.selectedNoteIndex}
           notes={this.state.notes}
@@ -104,7 +117,7 @@ class App extends React.Component {
             noteUpdate={this.noteUpdate}
           />
         ) : null}
-      </>
+      </div>
     );
   }
 }
